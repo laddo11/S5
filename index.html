@@ -1,211 +1,373 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>I Love You Swarna ❤️</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0212">
+<title>I Love You Swarna ♥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+  :root {
+    --size: min(80vmin, 600px);
+    --sway-duration: 6s;
+    --fall-duration: 6s;
+    --stagger: 0.27s;
+    --k: 1;
+  }
 
-body {
-    background: #000;
-    width: 100%;
-    height: 100vh;
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 42%, #4a0f2e 0%, #240718 38%, #0d0309 75%, #000 100%);
+    display: grid;
+    place-items: center;
     overflow: hidden;
-}
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    touch-action: none;
+    user-select: none;
+  }
 
-.container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-}
+  /* soft glowing aura behind the heart */
+  .aura {
+    position: fixed;
+    left: 50%; top: 46%;
+    width: calc(var(--size) * 1.1);
+    height: calc(var(--size) * 1.1);
+    translate: -50% -50%;
+    background: radial-gradient(circle, rgba(255, 90, 130, .36) 0%, rgba(255, 190, 90, .14) 45%, transparent 70%);
+    filter: blur(30px);
+    animation: beatGlow 1.6s ease-in-out infinite;
+    pointer-events: none;
+  }
 
-canvas {
-    width: 100%;
-    height: 100%;
+  canvas#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  .scene {
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    perspective: 1100px;
+    margin-top: -4vmin;
+  }
+
+  .scene { opacity: 0; scale: .2; transition: opacity 1.6s ease, scale 2s cubic-bezier(.2,.9,.25,1.15); }
+  body.on .scene { opacity: 1; scale: 1; }
+
+  .beat {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    animation: beat 1.6s ease-in-out infinite;
+  }
+
+  .spin {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .heart {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: var(--size);
+    height: var(--size);
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+    transform-style: preserve-3d;
+  }
+
+  .layer { position: absolute; inset: 0; transform-style: preserve-3d; }
+
+  .heart__item {
+    position: absolute;
+    inset: 0 auto auto 0;
+    animation:
+      sway var(--sway-duration) ease-in-out infinite alternate,
+      fall var(--fall-duration) ease-in-out infinite alternate;
+    animation-delay: calc(var(--index) * var(--stagger) * -1);
+    will-change: transform, translate;
+  }
+
+  .heart__item span {
     display: block;
-}
+    white-space: nowrap;
+    font-size: calc(var(--size) * 0.022);
+    font-weight: 500;
+    letter-spacing: .03em;
+    color: var(--c);
+    text-shadow: 0 0 5px var(--c), 0 0 14px var(--g);
+    transform: translate(-50%, -50%);
+  }
+
+  .caption { opacity: 0; transition: opacity 2s ease 1.2s; }
+  body.on .caption { opacity: 1; }
+  .caption {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: max(5vh, env(safe-area-inset-bottom));
+    text-align: center;
+    pointer-events: none;
+  }
+  .caption h1 {
+    font-family: "Great Vibes", "Hind Siliguri", "Brush Script MT", "Segoe Script", cursive;
+    font-weight: 400;
+    font-size: clamp(2rem, 8.5vw, 3.6rem);
+    min-height: 1.3em;
+    transition: opacity .8s ease;
+    background: linear-gradient(90deg, #ffb7c9, #ffe7a8, #ffc27a, #ff9fb8, #ffe7a8);
+    background-size: 250% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 12px rgba(255, 170, 90, .5));
+    animation: shine 5s linear infinite, float 3.2s ease-in-out infinite;
+  }
+  .caption p {
+    margin-top: .4rem;
+    font-size: .8rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: rgba(255, 215, 170, .55);
+  }
+
+  .intro {
+    position: fixed; inset: 0; z-index: 10;
+    display: grid; place-content: center; text-align: center; gap: .6rem;
+    background: radial-gradient(ellipse at 50% 45%, #3d0c26 0%, #14040d 60%, #000 100%);
+    cursor: pointer;
+    transition: opacity 1.2s ease, visibility 1.2s;
+  }
+  body.on .intro { opacity: 0; visibility: hidden; pointer-events: none; }
+  .intro small {
+    font-size: .8rem; letter-spacing: .4em; text-transform: uppercase;
+    color: rgba(255, 215, 170, .7);
+  }
+  .intro .name {
+    font-family: "Great Vibes", "Brush Script MT", cursive;
+    font-size: clamp(4rem, 22vw, 8rem); line-height: 1.05;
+    background: linear-gradient(100deg, #ffb7c9 0%, #fff0c2 30%, #ffc766 50%, #ff9fb8 75%, #fff0c2 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 22px rgba(255, 170, 80, .55));
+    animation: shine 4s linear infinite, float 3.2s ease-in-out infinite;
+  }
+  .intro .bn { font-family: "Hind Siliguri", sans-serif; color: #ffcfae; font-size: 1.1rem; }
+  .intro .tap {
+    margin-top: 1.4rem; justify-self: center;
+    padding: .7rem 1.6rem; border-radius: 999px;
+    border: 1px solid rgba(255, 200, 140, .6);
+    color: #ffe3bd; letter-spacing: .15em; font-size: .85rem;
+    box-shadow: 0 0 24px rgba(255, 150, 90, .35), inset 0 0 14px rgba(255, 150, 90, .2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(1.07); box-shadow: 0 0 34px rgba(255, 150, 90, .6), inset 0 0 18px rgba(255, 150, 90, .3); } }
+
+  @keyframes beat {
+    0%, 100% { scale: 1; }
+    12% { scale: 1.045; }
+    24% { scale: 1; }
+    36% { scale: 1.03; }
+    50% { scale: 1; }
+  }
+  @keyframes beatGlow {
+    0%, 100% { opacity: .75; scale: 1; }
+    12% { opacity: 1; scale: 1.08; }
+    36% { opacity: .95; scale: 1.05; }
+  }
+  @keyframes shine { to { background-position: 250% 0; } }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .beat, .aura, .caption h1, .heart__item { animation-play-state: paused; }
+  }
 </style>
 </head>
-
 <body>
+  <div class="intro" id="intro">
+    <small>for my love</small>
+    <div class="name">Swarna</div>
+    <div class="bn">স্বর্ণা, তোমার জন্য ♥</div>
+    <div class="tap">TAP TO OPEN</div>
+  </div>
+  <div class="aura"></div>
+  <canvas id="fx"></canvas>
 
-<div class="container">
-    <canvas id="heart"></canvas>
-</div>
+  <div class="scene">
+    <div class="beat">
+      <div class="spin" id="spin">
+        <div class="heart" id="heart"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">
+    <h1 id="title">I Love You, Swarna</h1>
+    <p>drag to rotate · tap for hearts</p>
+  </div>
 
 <script>
-const canvas = document.getElementById("heart");
-const ctx = canvas.getContext("2d");
+(() => {
+  /* ---------- config (change text via ?text=Your+Name) ---------- */
+  const params = new URLSearchParams(location.search);
+  const TEXT = (params.get('text') || 'I love you Swarna').slice(0, 30);
+  const title = document.getElementById('title');
+  const msgs = params.get('title') ? [params.get('title')] : [
+    'I Love You, Swarna', 'আমি তোমাকে ভালোবাসি, স্বর্ণা', 'You are my everything', 'তুমিই আমার সবকিছু', 'Forever & always, Swarna'
+  ];
+  let mi = 0; title.textContent = msgs[0];
+  setInterval(() => {
+    if (msgs.length < 2 || !document.body.classList.contains('on')) return;
+    title.style.opacity = 0;
+    setTimeout(() => { mi = (mi + 1) % msgs.length; title.textContent = msgs[mi]; title.style.opacity = 1; }, 800);
+  }, 4200);
+  document.getElementById('intro').addEventListener('click', () => {
+    document.body.classList.add('on');
+    for (let i = 0; i < 40; i++) setTimeout(() => spawn(innerWidth / 2 + (Math.random() - .5) * 120, innerHeight / 2, true), i * 25);
+  });
 
-const TEXT = "I Love You Swarna";
+  const heart = document.getElementById('heart');
+  const STEPS = 80;
+  const LAYERS = 5;
+  const PER_LAYER = 90;
+  const REF = 600;
+  const scale = REF / 36;
 
-let W, H, DPR, scale;
-let time = 0;
+  /* ---------- heart path as sway (x) + fall (y) keyframes ---------- */
+  const hx = t => 16 * Math.pow(Math.sin(t), 3);
+  const hy = t => -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
 
-function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let swayKF = '', fallKF = '';
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * Math.PI;
+    const p = (i / STEPS * 100).toFixed(2);
+    swayKF += `${p}%{transform:translateX(calc(${(hx(t) * scale).toFixed(2)}px * var(--dir) * var(--k)));}`;
+    fallKF += `${p}%{translate:0 calc(${((hy(t) - 2.5) * scale).toFixed(2)}px * var(--k));}`;
+  }
+  const st = document.createElement('style');
+  st.textContent = `@keyframes sway{${swayKF}}@keyframes fall{${fallKF}}`;
+  document.head.appendChild(st);
 
-    W = window.innerWidth;
-    H = window.innerHeight;
-
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
-    scale = Math.min(W / 37, H / 34);
-}
-
-function heart(t, s) {
-    return {
-        x: 16 * Math.pow(Math.sin(t), 3) * s,
-        y: -(
-            13 * Math.cos(t)
-            - 5 * Math.cos(2*t)
-            - 2 * Math.cos(3*t)
-            - Math.cos(4*t)
-        ) * s
-    };
-}
-
-function distance(a, b) {
-    return Math.hypot(b.x-a.x, b.y-a.y);
-}
-
-// Calculate heart curve length
-function getLength(s) {
-    let length = 0;
-    let previous = heart(0, s);
-
-    for (let i = 1; i <= 1000; i++) {
-        const current = heart(
-            i / 1000 * Math.PI * 2, s
-        );
-
-        length += distance(previous, current);
-        previous = current;
+  /* ---------- layers: each has its own colour ---------- */
+  const palette = [
+    ['#fff1c9', 'rgba(255,210,120,.8)'],
+    ['#ffd48a', 'rgba(255,170,70,.8)'],
+    ['#ffa7a0', 'rgba(255,110,110,.8)'],
+    ['#ff86ac', 'rgba(255,70,140,.8)'],
+    ['#e8739f', 'rgba(220,60,130,.75)']
+  ];
+  const frag = document.createDocumentFragment();
+  for (let l = 0; l < LAYERS; l++) {
+    const layer = document.createElement('div');
+    layer.className = 'layer';
+    layer.style.transform = `translateZ(calc(${(l - (LAYERS - 1) / 2) * 46}px * var(--k)))`;
+    layer.style.setProperty('--c', palette[l][0]);
+    layer.style.setProperty('--g', palette[l][1]);
+    for (let i = 0; i < PER_LAYER; i++) {
+      const el = document.createElement('div');
+      el.className = 'heart__item';
+      el.style.setProperty('--index', Math.floor(i / 2) + l * 0.5);
+      el.style.setProperty('--dir', i % 2 ? -1 : 1);
+      el.style.left = '50%';
+      el.style.top = '50%';
+      const s = document.createElement('span');
+      s.textContent = TEXT;
+      el.appendChild(s);
+      layer.appendChild(el);
     }
+    frag.appendChild(layer);
+  }
+  heart.appendChild(frag);
 
-    return length;
-}
+  /* ---------- rotation: auto-sway + drag to rotate ---------- */
+  const spin = document.getElementById('spin');
+  let ry = -45, rx = 3, vy = 0, dragging = false, lx = 0, ly = 0, auto = true, resume = 0;
+  const t0 = performance.now();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function drawTextRing(cx, cy, ring, animationTime) {
+  addEventListener('pointerdown', e => { dragging = true; auto = false; lx = e.clientX; ly = e.clientY; vy = 0; });
+  addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lx, dy = e.clientY - ly;
+    lx = e.clientX; ly = e.clientY;
+    ry += dx * 0.35; rx = Math.max(-35, Math.min(35, rx - dy * 0.25));
+    vy = dx * 0.35;
+  });
+  const up = () => {
+    if (!dragging) return;
+    dragging = false;
+    clearTimeout(resume);
+    resume = setTimeout(() => { auto = true; }, 2500);
+  };
+  addEventListener('pointerup', up); addEventListener('pointercancel', up);
 
-    const factor = 1 - ring * 0.055;
-    const s = scale * factor;
+  /* ---------- canvas: floating hearts, sparkles, tap bursts ---------- */
+  const cv = document.getElementById('fx'), cx = cv.getContext('2d');
+  let W, H;
+  const fit = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  const setK = () => document.documentElement.style.setProperty('--k', (heart.offsetWidth / REF).toFixed(4));
+  const fitAll = () => { fit(); setK(); };
+  fitAll(); addEventListener('resize', fitAll);
 
-    const circumference = getLength(s);
+  const parts = [];
+  const cols = ['#ffd48a', '#ffb7c9', '#ff86ac', '#fff1c9', '#ffffff'];
+  function spawn(x, y, burst) {
+    parts.push({
+      x, y,
+      vx: burst ? (Math.random() - .5) * 5 : (Math.random() - .5) * .4,
+      vy: burst ? -Math.random() * 4 - 1 : -Math.random() * .7 - .25,
+      r: burst ? 6 + Math.random() * 10 : 3 + Math.random() * 7,
+      life: 1,
+      decay: burst ? .012 : .0028 + Math.random() * .003,
+      c: cols[(Math.random() * cols.length) | 0],
+      heart: Math.random() < .7,
+      ph: Math.random() * 6.28
+    });
+  }
+  function drawHeart(x, y, r) {
+    cx.beginPath();
+    cx.moveTo(x, y + r * .35);
+    cx.bezierCurveTo(x - r, y - r * .5, x - r * .5, y - r * 1.1, x, y - r * .45);
+    cx.bezierCurveTo(x + r * .5, y - r * 1.1, x + r, y - r * .5, x, y + r);
+    cx.closePath(); cx.fill();
+  }
+  addEventListener('pointerdown', e => { for (let i = 0; i < 14; i++) spawn(e.clientX, e.clientY, true); });
 
-    ctx.font = "bold 10px Arial";
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(now - last, 50); last = now;
 
-    const textWidth = ctx.measureText(TEXT).width;
-
-    const spacing = textWidth * 0.94;
-
-    const count = Math.ceil(circumference / spacing);
-
-    const phase = animationTime *
-        (ring % 2 === 0 ? 0.18 : -0.18);
-
-    for (let i = 0; i < count; i++) {
-
-        const progress =
-            (i / count + phase) % 1;
-
-        const t = progress * Math.PI * 2;
-
-        const p = heart(t, s);
-
-        const next = heart(t + 0.001, s);
-
-        const angle = Math.atan2(
-            next.y - p.y,
-            next.x - p.x
-        );
-
-        const sway = Math.sin(
-            animationTime * 2 + i * 0.2 + ring
-        ) * 1.5;
-
-        ctx.save();
-
-        ctx.translate(
-            cx + p.x + sway,
-            cy + p.y
-        );
-
-        ctx.rotate(angle);
-
-        ctx.font = "bold 10px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        // Pink neon glow
-        ctx.shadowColor = "#ff55ad";
-        ctx.shadowBlur = 12;
-
-        ctx.fillStyle = "#ff80c0";
-        ctx.globalAlpha = 0.85;
-
-        ctx.fillText(TEXT, 0, 0);
-
-        // Bright neon layer
-        ctx.shadowBlur = 19;
-        ctx.fillStyle = "#ffc0e0";
-
-        ctx.globalAlpha = 0.25;
-
-        ctx.fillText(TEXT, 0, 0);
-
-        ctx.restore();
+    if (!reduce && auto) {
+      const k = (now - t0) / 1000;
+      ry = -34 + Math.sin(k * 0.55) * 10;
+      rx = 3 + Math.sin(k * 0.4) * 3;
+    } else if (!dragging) {
+      ry += vy; vy *= 0.94;
     }
-}
+    spin.style.transform = `rotateZ(-6deg) rotateY(${ry}deg) rotateX(${rx}deg)`;
 
-function animate() {
+    if (!reduce && Math.random() < dt * 0.012) spawn(Math.random() * W, H + 10, false);
 
-    requestAnimationFrame(animate);
-
-    time += 0.012;
-
-    ctx.clearRect(0, 0, W, H);
-
-    const cx = W / 2;
-    const cy = H / 2;
-
-    // Gentle heart movement
-    const breathing =
-        1 + Math.sin(time * 1.5) * 0.012;
-
-    ctx.save();
-
-    ctx.translate(cx, cy);
-    ctx.scale(breathing, breathing);
-    ctx.translate(-cx, -cy);
-
-    // Multiple parallel text layers
-    for (let ring = 0; ring < 7; ring++) {
-        drawTextRing(cx, cy, ring, time);
+    cx.clearRect(0, 0, W, H);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.x += p.vx + Math.sin(now / 700 + p.ph) * .25; p.y += p.vy; p.life -= p.decay;
+      if (p.life <= 0 || p.y < -30) { parts.splice(i, 1); continue; }
+      cx.globalAlpha = Math.min(1, p.life) * .8;
+      cx.fillStyle = p.c; cx.shadowColor = p.c; cx.shadowBlur = 10;
+      if (p.heart) drawHeart(p.x, p.y, p.r);
+      else { cx.beginPath(); cx.arc(p.x, p.y, p.r * .3, 0, 6.283); cx.fill(); }
     }
-
-    ctx.restore();
-}
-
-window.addEventListener("resize", resize);
-
-resize();
-animate();
-
+    cx.globalAlpha = 1; cx.shadowBlur = 0;
+    requestAnimationFrame(frame);
+  }
+  for (let i = 0; i < 18; i++) spawn(Math.random() * innerWidth, Math.random() * innerHeight, false);
+  requestAnimationFrame(frame);
+})();
 </script>
-
 </body>
 </html>
